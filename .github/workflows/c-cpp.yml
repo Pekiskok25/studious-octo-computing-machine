@@ -1,0 +1,76 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: uniondif
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: configure
+    
+      run: ./yef
+      
+      - name: Using Node v${{ matrix.node-version }}
+uses: actions/setup-node@v4
+with:
+node-version: ${{ matrix.node-version }}
+cache: "yarn"
+
+- name: Install dependencies
+run: yarn --frozen-lockfile --ignore-engines
+
+- name: Build
+run: yarn build
+
+- name: Lint
+run: yarn lint
+- name: Using Node v${{ matrix.node-version }}
+uses: actions/setup-node@v4
+with:
+node-version: ${{ matrix.node-version }}
+cache: "yarn"
+
+- uses: pnpm/action-setup@v4
+with:
+Version: 9
+- name: Install dependencies
+run: yarn --frozen-lockfile --ignore-engines --ignore-scripts
+
+- name: Prepare environment for tests
+run: yarn build:ci
+
+- name: Run tests and generate coverage
+run: yarn test:coverage --ci --shard = ${{ matrix.shard }}
+
+- name: Upload coverage to Codecov
+uses: codecov/codecov-action@v5
+with:
+token: ${{ secrets.CODECOV_TOKEN }}
+verbose: true
+- name: Using Node v${{ matrix.node-version }}
+uses: actions/setup-node@v4
+with:
+node-version: ${{ matrix.node-version }}
+cache: "yarn"
+
+- name: Install dependencies
+run: yarn --frozen-lockfile --ignore-engines
+    - name: make
+    
+      run: make
+      
+    - name: make check
+    
+      run: make check
+      
+    - name: make distcheck
+    
+      run: make distcheck
