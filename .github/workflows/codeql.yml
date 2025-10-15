@@ -9,6 +9,29 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
+  - name: Install dependencies
+    run: yarn --frozen-lockfile --ignore-engines --ignore-scripts
+
+  - name: Prepare environment for tests
+    run: yarn build:ci
+
+  - name: Run tests and generate coverage
+    run: yarn test:coverage --ci --shard=${{ matrix.shard }}
+
+  - name: Upload coverage to Codecov
+    uses: codecov/codecov-action@v5
+    with:
+      token: ${{ secrets.CODECOV_TOKEN }}
+      verbose: true
+  - name: Using Node v${{ matrix.node-version }}
+    uses: actions/setup-node@v4
+    with:
+      node-version: ${{ matrix.node-version }}
+      cache: "yarn"
+
+  - name: Install dependencies
+    run: yarn --frozen-lockfile --ignore-engines
+
 name: "CodeQL Advanced"
 
 on:
