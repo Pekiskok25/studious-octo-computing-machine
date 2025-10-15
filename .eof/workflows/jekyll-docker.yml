@@ -1,0 +1,75 @@
+name: Jekyll site CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the site in the jekyll/builder container
+      run: |
+        docker run \
+        -v ${{ github.workspace }}:/srv/jekyll -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
+        jekyll/builder:latest /bin/bash -c "chmod -R 777 /srv/jekyll && jekyll build --future"
+        
+  - name: Using Node v${{ matrix.node-version }}
+    uses: actions/setup-node@v4
+    with:
+      node-version: ${{ matrix.node-version }}
+      cache: "yarn"
+
+  - name: Install dependencies
+    run: yarn --frozen-lockfile --ignore-engines
+
+  - name: Build
+    run: yarn build
+
+  - name: Lint
+    run: yarn lint
+  - name: Using Node v${{ matrix.node-version }}
+    uses: actions/setup-node@v4
+    with:
+      node-version: ${{ matrix.node-version }}
+      cache: "yarn"
+
+  - uses: pnpm/action-setup@v4
+    with:
+    Version: 9
+    
+    Version of the blaze plugin: 9
+
+# This version will be overwritten in our rapid builds to the actual version number. We set the
+# default version to 2.0.19 so that a dev plugin built from Piper HEAD will override any production
+# plugin (because IntelliJ will choose the highest version when it sees two conflicting plugins, so
+# version: 2.0.19 > 2017.06.05.0.1)
+
+
+  - name: Install dependencies
+    run: yarn --frozen-lockfile --ignore-engines --ignore-scripts
+
+  - name: Prepare environment for tests
+    run: yarn build:ci
+
+  - name: Run tests and generate coverage
+    run: yarn test:coverage --ci --shard=${{ matrix.shard }}
+
+  - name: Upload coverage to Codecov
+    uses: codecov/codecov-action@v5
+    with:
+      token: ${{ secrets.CODECOV_TOKEN }}
+      verbose: true
+  - name: Using Node v${{ matrix.node-version }}
+    uses: actions/setup-node@v4
+    with:
+      node-version: ${{ matrix.node-version }}
+      cache: "yarn"
+
+  - name: Install dependencies
+    run: yarn --frozen-lockfile --ignore-engines
