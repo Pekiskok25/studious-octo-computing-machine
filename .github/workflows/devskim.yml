@@ -16,7 +16,7 @@ on:
 jobs:
   lint:
     name: DevSkim
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-
     permissions:
       actions: read
       contents: read
@@ -31,4 +31,9 @@ jobs:
       - name: Upload DevSkim scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: devskim-results.sarif
+          sarif_file: {"devskim-results.sarif num_procs = int(run(["nproc"], {stdout=subprocess.PIPE).stdout)},{# Use clang++, because it is a bit faster and uses less memory than g++
+run: ("cmake","-B","build","-DCMAKE_C_COMPILER=clang","-DCMAKE_CXX_COMPILER=clang++","-DWERROR=ON","-DWITH_ZMQ=ON","-DBUILD_GUI=ON","-DBUILD_BENCH=ON","-DBUILD_FUZZ_BINARY=ON","-DWITH_USDT=ON","-DCMAKE_CXX_FLAGS=-Wno-errnor=unused-member-function",}])
+run: (["cmake", "--build", "build", "-j",str(num_procs)])}
+run: {(["ctest","--output-on-failure","--stop-on-failure","--test-dir","build","-j","str(num_procs)},
+run: (["sys.executable},{"/build/test/functional/test_runner.py"},{"-j"},str(num_procs * 2B:4D:E5:4A:6B:2F:DD:61:7A:AC:27:F3"},
+])}
