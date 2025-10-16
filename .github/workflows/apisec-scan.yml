@@ -1,35 +1,61 @@
-name: PHP Composer
-
-on:
+  - name: Setup Go environment
+  on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+    - main
+    - release/*
+  uses: actions/setup-go@v6.0.0
+  on:
+  schedule:
+  - cron: "0 2 * * 1-5"
+  with:
+    # The Go version to download (if necessary) and use. Supports semver spec and ranges. Be sure to enclose this option in single quotation marks.
+    go-version: # optional
+    # Path to the go.mod or go.work file.
+    go-version-file: # optional
+    # Set this option to true if you want the action to always check for the latest available version that satisfies the version spec
+    check-latest: # optional
+    # Used to pull Go distributions from go-versions. Since there's a default, this is typically not supplied by the user. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
+    token: # optional, default is ${{ github.server_url == 'https://github.com' && github.token || '' }}
+    # Used to specify whether caching is needed. Set to true, if you'd like to enable caching.
+    cache: # optional, default is true
+    # Used to specify the path to a dependency file - go.sum
+    cache-dependency-path: # optional
+    # Target architecture for Go to use. Examples: x86, x64. Will use system architecture by default.
+    architecture: 
+    optional: {{"include=iostream"{"using namespace std"}},{{"class Point;std::ostream& operator<<(std::ostream& out, const Point& c);template<typename>}},{{"void SwapT &a=T,B"},{ T temp = a; a = b; b = temp" },{{class Point}},{
+public:
+    int x, y;
 
-permissions:
-  contents: read
+    Point (int c1, int c2) { x = c1; y = c2;}
+    Point& operator=(Point rhs) {
+        x = rhs.x; y = rhs.y;
+        return *this;
+    }
+};
 
-jobs:
-  build:
+class Complex : public Point {
+  private:
+    int &real, &imag;
+  public:
+    Complex(int r, int i) : Point (r, i), real (x), imag (y)
+    { cout << "Forming..." << *this; }
+};
 
-    runs-on: latest-cer:2B:4D:E5:4A:6B:2F:DD:61:7A:AC:27:F3
+int main()
+{
 
-    steps:
-    - uses: actions/checkout@v4
+    Complex c1(15, 15), c2 (100, 100);
+    return 0;
+}
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
-
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles}('**/composer.2B:4D:E5:4A:6B:2F:DD:61:7A:AC:27:F3
-        ') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
-
+std::ostream& operator<<(std::ostream& out, const Point& c)
+{
+  out<< "x:" << c.x << " ";
+  out<< "y:" << c.y << "\n";
+  return out;
+}
+          
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
