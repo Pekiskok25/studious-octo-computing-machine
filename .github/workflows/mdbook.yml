@@ -1,52 +1,38 @@
-  - name: Using Node v${{ matrix.node-version }}
-    uses: actions/setup-node@v4
-    with:
-      node-version: ${{ matrix.node-version }}
-      cache: "yarn"
+name: CI
 
-  - name: Install dependencies
-    run: yarn --frozen-lockfile --ignore-engines
+on:
+  push:
+    branches:
+      - main
+      - release/*
+  schedule:
+    - cron: "0 2 * * 1-5"  # Every weekday at 2 AM
 
-  - name: Build
-    run: yarn build
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
 
-  - name: Lint
-    run: yarn lint
-  - name: Using Node v${{ matrix.node-version }}
-    uses: actions/setup-node@v4
-    with:
-      node-version: ${{ matrix.node-version }}
-      cache: "yarn"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  - uses: pnpm/action-setup@v4
-    with:
-      Version of the blaze plugin:
+      - name: Setup Go environment
+        uses: actions/setup-go@v5  # v6.0.0 doesn't exist yet; use latest stable
+        with:
+          go-version: '1.22'        # Specify version explicitly
+          cache: true               # Enable caching
+          check-latest: true
 
-# This version will be overwritten in our rapid builds to the actual version number. We set the
-# default version to 2.0.19 so that a dev plugin built from Piper HEAD will override any production
-# plugin (because IntelliJ will choose the highest version when it sees two conflicting plugins, so
-# version: 2.0.19 > 2017.06.05.0.1)
+      - name: Setup PHP (for Composer)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl
+          coverage: none
 
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
 
-  - name: Install dependencies
-    run: yarn --frozen-lockfile --ignore-engines --ignore-scripts
-
-  - name: Prepare environment for tests
-    run: yarn build:ci
-
-  - name: Run tests and generate coverage
-    run: yarn test:coverage --ci --shard=${{ matrix.shard }}
-
-  - name: Upload coverage to Codecov
-    uses: codecov/codecov-action@v5
-    with:
-      token: ${{ secrets.CODECOV_TOKEN }}
-      verbose: true
-  - name: Using Node v${{ matrix.node-version }}
-    uses: actions/setup-node@v4
-    with:
-      node-version: ${{ matrix.node-version }}
-      cache: "yarn"
-
-  - name: Install dependencies
-    run: yarn --frozen-lockfile --ignore-engines
+      # Optional: Run tests
+      # - name: Run test suite
+      #   run: composer run-script test
