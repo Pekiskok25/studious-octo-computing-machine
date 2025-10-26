@@ -1,38 +1,24 @@
-name: CI
+steps:
+  - name: Checkout code
+    uses: actions/checkout@v4
 
-on:
-  push:
-    branches:
-      - main
-      - release/*
-  schedule:
-    - cron: "0 2 * * 1-5"  # Every weekday at 2 AM
+  - name: Setup Go environment
+    uses: actions/setup-go@v5  # v6.0.0 doesn't exist yet; use latest stable
+    with:
+      go-version: '1.22'        # Specify version explicitly
+      cache: true               # Enable caching
+      check-latest: true
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+  - name: Setup PHP (for Composer)
+    uses: shivammathur/setup-php@v2
+    with:
+      php-version: '8.2'
+      extensions: mbstring, intl
+      coverage: none
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  - name: Install dependencies
+    run: composer install --prefer-dist --no-progress --no-interaction
 
-      - name: Setup Go environment
-        uses: actions/setup-go@v5  # v6.0.0 doesn't exist yet; use latest stable
-        with:
-          go-version: '1.22'        # Specify version explicitly
-          cache: true               # Enable caching
-          check-latest: true
-
-      - name: Setup PHP (for Composer)
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, intl
-          coverage: none
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
-
-      # Optional: Run tests
-      # - name: Run test suite
-      #   run: composer run-script test
+  # Optional: Run tests
+  # - name: Run test suite
+  #   run: composer run-script test
